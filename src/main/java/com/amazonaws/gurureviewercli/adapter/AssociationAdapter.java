@@ -1,5 +1,6 @@
 package com.amazonaws.gurureviewercli.adapter;
 
+import java.text.Format;
 import java.util.concurrent.TimeUnit;
 
 import lombok.val;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.services.codegurureviewer.model.S3Repository;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
 
 import com.amazonaws.gurureviewercli.exceptions.GuruCliException;
 import com.amazonaws.gurureviewercli.model.Configuration;
@@ -104,7 +106,11 @@ public final class AssociationAdapter {
                       .read("Do you want to create a new S3 bucket: " + bucketName, bucketName);
             if (createBucket) {
                 Log.info("Creating new bucket: %s", bucketName);
-                config.getS3Client().createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+                try {
+                    config.getS3Client().createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
+                } catch (BucketAlreadyExistsException exists) {
+                    Log.info("bucket %s already exists.  Skipping", bucketName);
+                }
             } else {
                 throw new GuruCliException(ErrorCodes.USER_ABORT, "CodeGuru needs an S3 bucket to continue.");
             }
