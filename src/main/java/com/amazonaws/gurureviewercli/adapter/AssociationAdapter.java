@@ -1,6 +1,6 @@
 package com.amazonaws.gurureviewercli.adapter;
 
-import java.text.Format;
+
 import java.util.concurrent.TimeUnit;
 
 import lombok.val;
